@@ -11,11 +11,12 @@ assert 'AWS_S3_BUCKET' in os.environ, "Expected env var AWS_S3_BUCKET"
 assert 'HEARTBEAT_URL' in os.environ, "Expected env var HEARTBEAT_URL"
 assert 'SLEEP_SECONDS' in os.environ, "Expected env var SLEEP_SECONDS"
 assert 'FILENAME_PREFIX' in os.environ, "Expected env var FILENAME_PREFIX"
+assert os.path.exists('/backup') and os.path.isdir('/backup'), "Expected directory at /backup"
 
 aws_s3_bucket = os.environ['AWS_S3_BUCKET']
 heartbeaat_url = os.environ['HEARTBEAT_URL']
-sleep_seconds = os.environ['SLEEP_SECONDS']
 filename_prefix = os.environ['FILENAME_PREFIX']
+sleep_seconds = int(os.environ['SLEEP_SECONDS'])
 
 client = boto3.client('s3')
 
