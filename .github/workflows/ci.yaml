@@ -38,11 +38,6 @@ jobs:
         run: |
           sudo apt -qq install -y docker-compose
           docker-compose --version
-      - name: Create Expected Backup
-        timeout-minutes: 1
-        run: |
-          cd test/happy-path
-          ./local.sh
       - name: Run Containers
         timeout-minutes: 1
         run: |
