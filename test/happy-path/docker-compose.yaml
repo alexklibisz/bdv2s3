@@ -6,13 +6,13 @@ services:
     volumes:
       - './backup/container1:/mnt/src:ro'
       - 'container1_data:/mnt/dst'
-    command: ["rsync", "-av", "/mnt/src/", "/mnt/dst/"]
+    command: ["rsync", "-avt", "/mnt/src/", "/mnt/dst/"]
   container2:
     image: eeacms/rsync:2.4
     volumes:
       - './backup/container2:/mnt/src:ro'
       - 'container2_data:/mnt/dst'
-    command: ["rsync", "-av", "/mnt/src/", "/mnt/dst/"]
+    command: ["rsync", "-avt", "/mnt/src/", "/mnt/dst/"]
   backup:
     build:
       context: ../..
