@@ -8,3 +8,4 @@ echo "d2/f1" > backup/container2/d2/f1.txt
 echo "d2/f2" > backup/container2/d2/f2.txt
 GZIP=-n tar cvzf /tmp/local.tar.gz --sort=name backup
 md5sum /tmp/local.tar.gz
+du -hs /tmp/local.tar.gz

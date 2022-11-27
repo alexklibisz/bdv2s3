@@ -48,6 +48,7 @@ do
     echo "Creating new backup with key [${AWS_S3_KEY}]"
     GZIP=-n tar cvzf /tmp/backup.tar.gz --sort=name backup
     md5sum /tmp/backup.tar.gz
+    du -hs /tmp/backup.tar.gz
     aws s3 cp /tmp/backup.tar.gz s3://$AWS_S3_BUCKET/$AWS_S3_KEY
     echo "Completed backup. Sleeping [$SLEEP_SECONDS] seconds before next backup."
     sleep $SLEEP_SECONDS
