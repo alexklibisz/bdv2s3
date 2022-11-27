@@ -5,12 +5,14 @@ services:
     image: alpine:3.17.0
     volumes:
       - 'container1_data:/data'
-    command: ["/bin/sh", "container.sh"]
+      - './container.sh:/container.sh'
+    command: ["/bin/sh", "/container.sh"]
   container2:
     image: alpine:3.17.0
     volumes:
       - 'container2_data:/data'
-    command: ["/bin/sh", "container.sh"]
+      - './container.sh:/container.sh'
+    command: ["/bin/sh", "/container.sh"]
   expected:
     build:
       context: ../..
@@ -18,8 +20,9 @@ services:
     volumes:
       - 'container1_data:/backup/container1:ro'
       - 'container1_data:/backup/container2:ro'
+      - './expected.sh:/expected.sh'
       - '.:/out'
-    command: ["/bin/sh", "expected.sh"]
+    command: ["/bin/sh", "/expected.sh"]
   backup:
     build:
       context: ../..
