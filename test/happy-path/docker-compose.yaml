@@ -2,17 +2,17 @@ version: '3.8'
 
 services:
   container1:
-    image: ubuntu:22.04
+    image: eeacms/rsync:2.4
     volumes:
       - './backup/container1:/mnt/src:ro'
       - 'container1_data:/mnt/dst'
-    command: ["cp", "-r", "/mnt/src/*", "/mnt/dst"]
+    command: ["rsync", "-av", "/mnt/src/", "/mnt/dst/"]
   container2:
-    image: ubuntu:22.04
+    image: eeacms/rsync:2.4
     volumes:
       - './backup/container2:/mnt/src:ro'
       - 'container2_data:/mnt/dst'
-    command: ["cp", "-r", "/mnt/src/*", "/mnt/dst"]
+    command: ["rsync", "-av", "/mnt/src/", "/mnt/dst/"]
   backup:
     build:
       context: ../..
