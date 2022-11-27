@@ -6,6 +6,7 @@ import time
 
 assert 'AWS_ACCESS_KEY_ID' in os.environ, "Expected env var AWS_ACCESS_KEY_ID"
 assert 'AWS_SECRET_ACCESS_KEY' in os.environ, "Expected env var AWS_SECRET_ACCESS_KEY"
+assert 'AWS_DEFAULT_REGION' in os.environ, "Expected env var AWS_DEFAULT_REGION"
 assert 'AWS_S3_BUCKET' in os.environ, "Expected env var AWS_S3_BUCKET"
 assert 'HEARTBEAT_URL' in os.environ, "Expected env var HEARTBEAT_URL"
 assert 'SLEEP_SECONDS' in os.environ, "Expected env var SLEEP_SECONDS"
