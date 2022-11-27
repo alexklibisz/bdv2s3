@@ -74,7 +74,6 @@ jobs:
           tar xvf $BACKUP_FNAME
       - name: Restore Backup
         run: |
-          docker volume rm test_postgresql_data
           docker volume create test_postgresql_data
           docker run --rm -v $PWD/backup/test_postgresql_data:/backup -v test_postgresql_data:/restore -it ubuntu:22.04 /bin/bash -c "cp -rv /backup/* /restore && chown -R 1001:root /restore"\
       - name: Restart Containers
