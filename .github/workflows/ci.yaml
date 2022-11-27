@@ -53,9 +53,9 @@ jobs:
           COMPOSE_INTERACTIVE_NO_CLI: 1
         run: |
           cd test/happy-path
-          docker-compose exec -T backup /backup.sh
+          docker-compose exec -T backup ./backup.sh
           sleep 3
-          docker-compose exec -T backup /backup.sh
+          docker-compose exec -T backup ./backup.sh
           docker-compose logs
           docker-compose down
       - name: Check Backups
