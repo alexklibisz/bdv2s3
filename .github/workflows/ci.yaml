@@ -43,12 +43,6 @@ jobs:
         run: |
           sudo apt -qq install -y awscli
           aws --version
-      - name: Create Expected Tarfile
-        timeout-minutes: 1
-        run: |
-          ./test/happy-path/local.sh
-          sleep 5
-          ./test/happy-path/local.sh
       - name: Run Containers
         timeout-minutes: 1
         run: |
