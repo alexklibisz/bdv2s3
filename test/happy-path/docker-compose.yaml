@@ -2,17 +2,24 @@ version: '3.8'
 
 services:
   container1:
-    image: eeacms/rsync:2.4
+    image: alpine:3.17.0
     volumes:
-      - './backup/container1:/mnt/src:ro'
-      - 'container1_data:/mnt/dst'
-    command: ["rsync", "-avt", "/mnt/src/", "/mnt/dst/"]
+      - 'container1_data:/data'
+    command: ["/bin/sh", "container.sh"]
   container2:
-    image: eeacms/rsync:2.4
+    image: alpine:3.17.0
     volumes:
-      - './backup/container2:/mnt/src:ro'
-      - 'container2_data:/mnt/dst'
-    command: ["rsync", "-avt", "/mnt/src/", "/mnt/dst/"]
+      - 'container2_data:/data'
+    command: ["/bin/sh", "container.sh"]
+  expected:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    volumes:
+      - 'container1_data:/backup/container1:ro'
+      - 'container1_data:/backup/container2:ro'
+      - '.:/out'
+    command: ["/bin/sh", "expected.sh"]
   backup:
     build:
       context: ../..
@@ -27,7 +34,6 @@ services:
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
       - AWS_S3_KEY_PREFIX=${AWS_S3_KEY_PREFIX}
       - HEARTBEAT_URL=https://github.com
-
 volumes:
   container1_data:
     name: container1_data
