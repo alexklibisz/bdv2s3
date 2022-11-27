@@ -29,11 +29,11 @@ jobs:
         uses: actions/checkout@v2
       - name: Install Docker Compose
         run: |
-          sudo apt install -y docker-compose
+          sudo apt -qq install -y docker-compose
           docker-compose --version
       - name: Install AWS CLI
         run: |
-          sudo apt install -y awscli
+          sudo apt -qq install -y awscli
           aws --version
       - name: Create Expected Tarfile
         run: |
