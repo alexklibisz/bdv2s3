@@ -48,9 +48,12 @@ jobs:
           COMPOSE_INTERACTIVE_NO_CLI: 1
         run: |
           cd test/happy-path
-          docker-compose exec -T backup ./backup.sh
+          docker-compose exec -T backup /bin/sh /backup.sh
           sleep 3
-          docker-compose exec -T backup ./backup.sh
+          docker-compose exec -T backup /bin/sh /backup.sh
+      - name: Stop Containers
+        if: ${{ always() }}
+        run: |
           docker-compose logs
           docker-compose down
       - name: Install AWS CLI
