@@ -11,12 +11,15 @@ services:
       - POSTGRESQL_DATABASE=test
       - POSTGRESQL_USERNAME=test
       - POSTGRESQL_PASSWORD=test
+    labels:
+      - bdv2s3.stop-during-backup=true
   backup:
     build:
       context: ../..
       dockerfile: Dockerfile
     volumes:
       - 'test_postgresql_data:/backup/postgresql_data:ro'
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - AWS_S3_BUCKET=${AWS_S3_BUCKET}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
