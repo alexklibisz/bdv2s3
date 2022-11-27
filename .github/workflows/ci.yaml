@@ -61,3 +61,4 @@ jobs:
       - name: Check buckets
         run: |
           aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX-*"
+          md5sum $AWS_S3_KEY_PREFIX-*
