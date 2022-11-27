@@ -27,10 +27,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install Tools
+      - name: Install Docker Compose
         run: |
           sudo apt install -y docker-compose
           docker-compose --version
+      - name: Install AWS CLI
+        run: |
+          sudo apt install -y awscli
+          aws --version
       - name: Create Expected Tarfile
         run: |
           ./test/happy-path/local.sh
