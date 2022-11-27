@@ -54,7 +54,7 @@ jobs:
       - name: Stop Containers
         if: ${{ always() }}
         run: |
-          cd /test/happy-path
+          cd test/happy-path
           docker-compose logs
           docker-compose down
       - name: Install AWS CLI
