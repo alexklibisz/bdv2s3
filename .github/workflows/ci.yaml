@@ -53,6 +53,7 @@ jobs:
           cd test/happy-path
           docker-compose up -d --build
       - name: Check Containers
+        run: |
           cd test/happy-path
           sleep 20
           docker-compose logs
