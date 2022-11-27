@@ -6,13 +6,13 @@ services:
     volumes:
       - './data:/mnt/data/src'
       - 'container1_data:/mnt/data/dst'
-    command: ["rsync", "-av", "/mnt/data/src/", "/mnt/data/dst/"]
+    command: ["cp", "-r", "/mnt/data/src/*", "/mnt/data/dst/"]
   container2:
     image: ubuntu:22.04
     volumes:
       - './data:/mnt/data/src'
       - 'container2_data:/mnt/data/dst'
-    command: ["rsync", "-av", "/mnt/data/src/", "/mnt/data/dst/"]
+    command: ["cp", "-r", "/mnt/data/src/*", "/mnt/data/dst/"]
   backup:
     build:
       context: ../..
