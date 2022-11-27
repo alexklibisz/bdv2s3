@@ -55,6 +55,6 @@ jobs:
       - name: Check Containers
         run: |
           cd test/happy-path
-          sleep 20
+          sleep 30
           docker-compose logs
           docker-compose down
