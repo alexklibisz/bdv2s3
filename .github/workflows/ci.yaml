@@ -58,3 +58,6 @@ jobs:
           sleep 30
           docker-compose logs
           docker-compose down
+      - name: Check buckets
+        run: |
+          aws s3 cp s3://$AWS_S3_BUCKET/$AWS_S3_KEY_PREFIX .
