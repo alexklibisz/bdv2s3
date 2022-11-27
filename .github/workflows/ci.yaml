@@ -67,15 +67,19 @@ jobs:
         working-directory: test/postgres
         run: |
           docker-compose down --volumes
-      - name: Restore Backup
+      - name: Extract Backup
         run: |
           aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
-          find . -name '*.tar.gz'
           export BACKUP_FNAME=$(find . -name '*.tar.gz' | grep $AWS_S3_KEY_PREFIX | tail -n1)
-          echo $BACKUP_FNAME
-      - name: Validate Backup
+          tar xvf $BACKUP_FNAME
+      - name: Restore Backup
         run: |
-          echo "..."
+          docker volume rm test_postgresql_data
+          docker volume create test_postgresql_data
+          docker run --rm -v $PWD/backup/test_postgresql_data:/backup -v test_postgresql_data:/restore -it ubuntu:22.04 /bin/bash -c "cp -rv /backup/* /restore && chown -R 1001:root /restore"\
+      - name: Restart Containers
+        run: |
+          docker-compose up -d
       # - name: Check Backups
       #   run: |
       #     aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX-*"
