@@ -6,4 +6,5 @@ echo "d1/f1" > backup/d1/f1.txt
 echo "d1/f2" > backup/d1/f2.txt
 echo "d2/f1" > backup/d2/f1.txt
 echo "d2/f2" > backup/d2/f2.txt
-tar cvzf local.tar.gz backup
+tar cvzf /tmp/local.tar.gz backup
+md5sum /tmp/local.tar.gz
