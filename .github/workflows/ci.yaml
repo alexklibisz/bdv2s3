@@ -62,7 +62,7 @@ jobs:
           COMPOSE_INTERACTIVE_NO_CLI: 1
         run: |
           cd test/postgres
-          docker-compose exec -T backup /bin/sh /backup.sh
+          docker-compose exec -T backup /backup.sh
       - name: Stop Containers
         working-directory: test/postgres
         run: |
