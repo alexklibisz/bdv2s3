@@ -2,7 +2,7 @@
 set -e
 /bin/sh /checkenv.sh
 
-docker ps --format "{{.ID}}" --filter "label=docker-volume-backup.stop-during-backup=true"
+docker ps --format "{{.ID}}" --filter "label=bdv2s3.stop-during-backup=true"
 
 AWS_S3_KEY="$AWS_S3_KEY_PREFIX$(date +%Y%m%d%H%M%S).tar.gz"
 echo "Creating new backup with key [${AWS_S3_KEY}]"
