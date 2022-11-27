@@ -4,15 +4,15 @@ services:
   container1:
     image: ubuntu:22.04
     volumes:
-      - './data:/mnt/data/src'
+      - './data/container1:/mnt/data/src:ro'
       - 'container1_data:/mnt/data/dst'
-    command: ["cp", "-r", "/mnt/data/src/*", "/mnt/data/dst/"]
+    command: ["cp", "-r", "/mnt/data/src/", "/mnt/data/dst"]
   container2:
     image: ubuntu:22.04
     volumes:
-      - './data:/mnt/data/src'
+      - './data/container2:/mnt/data/src:ro'
       - 'container2_data:/mnt/data/dst'
-    command: ["cp", "-r", "/mnt/data/src/*", "/mnt/data/dst/"]
+    command: ["cp", "-r", "/mnt/data/src/", "/mnt/data/dst"]
   backup:
     build:
       context: ../..

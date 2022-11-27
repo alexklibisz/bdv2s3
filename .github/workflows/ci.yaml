@@ -38,11 +38,6 @@ jobs:
         run: |
           sudo apt -qq install -y docker-compose
           docker-compose --version
-      - name: Install AWS CLI
-        timeout-minutes: 1
-        run: |
-          sudo apt -qq install -y awscli
-          aws --version
       - name: Run Containers
         timeout-minutes: 1
         run: |
@@ -58,6 +53,11 @@ jobs:
           docker-compose exec -T backup ./backup.sh
           docker-compose logs
           docker-compose down
+      - name: Install AWS CLI
+        timeout-minutes: 1
+        run: |
+          sudo apt -qq install -y awscli
+          aws --version
       - name: Check Backups
         run: |
           aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX-*"
