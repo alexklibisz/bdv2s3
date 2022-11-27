@@ -47,6 +47,7 @@ jobs:
         timeout-minutes: 1
         run: |
           ./test/happy-path/local.sh
+          ./test/happy-path/local.sh
       - name: Run Containers
         timeout-minutes: 1
         run: |
