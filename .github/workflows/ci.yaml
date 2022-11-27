@@ -55,9 +55,13 @@ jobs:
           cd test/happy-path
           docker-compose up -d --build
       - name: Check Containers
+        env:
+          COMPOSE_INTERACTIVE_NO_CLI: 1
         run: |
           cd test/happy-path
-          sleep 30
+          docker-compose exec -T backup
+          sleep 10
+          docker-compose exec -T backup
           docker-compose logs
           docker-compose down
       - name: Check Backups

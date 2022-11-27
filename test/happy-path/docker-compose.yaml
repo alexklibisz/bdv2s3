@@ -4,15 +4,15 @@ services:
   container1:
     image: ubuntu:22.04
     volumes:
-      - 'container1_data:/data'
-      - './container1.sh:/container1.sh'
-    command: '/container1.sh'
+      - './data:/mnt/data/src'
+      - 'container1_data:/mnt/data/dst'
+    command: ["rsync", "-av", "/mnt/data/src/", "/mnt/data/dst/"]
   container2:
     image: ubuntu:22.04
     volumes:
-      - 'container2_data:/data'
-      - './container2.sh:/container2.sh'
-    command: '/container2.sh'
+      - './data:/mnt/data/src'
+      - 'container2_data:/mnt/data/dst'
+    command: ["rsync", "-av", "/mnt/data/src/", "/mnt/data/dst/"]
   backup:
     build:
       context: ../..
@@ -26,8 +26,6 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
       - AWS_S3_KEY_PREFIX=${AWS_S3_KEY_PREFIX}
-      - INITIAL_SLEEP_SECONDS=5
-      - SLEEP_SECONDS=10
       - HEARTBEAT_URL=https://github.com
 
 volumes:
