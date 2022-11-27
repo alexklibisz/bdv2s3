@@ -43,7 +43,7 @@ jobs:
         run: |
           cd test/happy-path
           docker-compose up -d --build
-      - name: Check Containers
+      - name: Run Backups
         env:
           COMPOSE_INTERACTIVE_NO_CLI: 1
         run: |

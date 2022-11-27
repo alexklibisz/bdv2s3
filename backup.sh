@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 /bin/sh /checkenv.sh
 AWS_S3_KEY="$AWS_S3_KEY_PREFIX-$(date +%Y%m%d%H%M%S).tar.gz"
