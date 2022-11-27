@@ -69,7 +69,7 @@ jobs:
           docker-compose down --volumes
       - name: Restore Backup
         run: |
-          aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX-*"
+          aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
           find . -name '*.tar.gz'
           export BACKUP_FNAME=$(find . -name '*.tar.gz' | grep $AWS_S3_KEY_PREFIX | tail -n1)
           echo $BACKUP_FNAME
