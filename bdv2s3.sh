@@ -46,6 +46,6 @@ while true
 do
     AWS_S3_KEY="$S3_KEY_PREFIX-$(date +%Y%m%d%H%M%S).tar.gz"
     echo "Creating new backup with key [${AWS_S3_KEY}]"
-    tar cvzf backup.tar.gz /backup
+    tar cvzf /tmp/backup.tar.gz backup
     sleep $SLEEP_SECONDS
 done
