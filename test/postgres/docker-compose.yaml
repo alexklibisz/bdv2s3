@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  container1:
+    image: bitnami/postgresql:15.1.0
+    volumes:
+      - 'postgresql_data:/bitnami/postgresql'
+      - './container.sh:/container.sh'
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=test
+      - POSTGRESQL_USERNAME=test
+      - POSTGRESQL_PASSWORD=test
+  backup:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    volumes:
+      - 'postgresql_data:/backup/postgresql_data:ro'
+    environment:
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - AWS_S3_KEY_PREFIX=${AWS_S3_KEY_PREFIX}
+      - HEARTBEAT_URL=https://github.com
+volumes:
+  postgresql_data:
+    name: postgresql_data
+    driver: local

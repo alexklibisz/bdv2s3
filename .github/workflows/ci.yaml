@@ -21,7 +21,7 @@ jobs:
     steps:
       - run: echo $GITHUB_CONTEXT
 
-  test-happy-path:
+  test-postgres:
     runs-on: ubuntu-22.04
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -38,32 +38,43 @@ jobs:
         run: |
           sudo apt -qq install -y docker-compose
           docker-compose --version
-      - name: Run Containers
+      - name: Install Postgres Client
         timeout-minutes: 1
         run: |
-          cd test/happy-path
-          docker-compose up -d --build
-      - name: Run Backups
-        env:
-          COMPOSE_INTERACTIVE_NO_CLI: 1
-        run: |
-          cd test/happy-path
-          docker-compose exec -T backup /bin/sh /backup.sh
-          sleep 3
-          docker-compose exec -T backup /bin/sh /backup.sh
-      - name: Stop Containers
-        if: ${{ always() }}
-        run: |
-          cd test/happy-path
-          docker-compose logs
-          docker-compose down
+          sudo apt -qq install -y postgresql-client
+          psql --version
       - name: Install AWS CLI
         timeout-minutes: 1
         run: |
           sudo apt -qq install -y awscli
           aws --version
-      - name: Check Backups
+      - name: Start Containers
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: docker-compose up -d --build
+      - name: Insert Data
+        timeout-minutes: 1
+        working-directory: test/postgres
         run: |
-          aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX-*"
-          find . -name '*.tar.gz' | grep $AWS_S3_KEY_PREFIX | xargs md5sum
-          find . -name '*.tar.gz' | grep $AWS_S3_KEY_PREFIX | xargs cmp --silent $1 /backup.tar.gz
+          echo "..."
+      - name: Run Backup
+        env:
+          COMPOSE_INTERACTIVE_NO_CLI: 1
+        run: |
+          cd test/postgres
+          docker-compose exec -T backup /bin/sh /backup.sh
+      - name: Stop Containers
+        working-directory: test/postgres
+        run: |
+          docker-compose down --volumes
+      - name: Restore Backup
+        run: |
+          echo "..."
+      - name: Validate Backup
+        run: |
+          echo "..."
+      # - name: Check Backups
+      #   run: |
+      #     aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX-*"
+      #     find . -name '*.tar.gz' | grep $AWS_S3_KEY_PREFIX | xargs md5sum
+      #     find . -name '*.tar.gz' | grep $AWS_S3_KEY_PREFIX | xargs cmp --silent $1 /backup.tar.gz
