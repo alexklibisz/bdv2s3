@@ -28,7 +28,7 @@ while True:
     print(f"Creating new backup with key [{aws_s3_key}]")
     with tarfile.open('backup.tar.gz', "w:gz") as tar:
         tar.add('/backup', arcname='backup')
-    with tarfile.open('backup.tar.gz', 'rb') as tar:
+    with open('backup.tar.gz', 'rb') as tar:
         client.put_object(Body=tar, Bucket=aws_s3_bucket, Key=backup_filename)
     print(f"Completed new backup. Sleeping [{sleep_seconds}] seconds.")
     time.sleep(sleep_seconds)
