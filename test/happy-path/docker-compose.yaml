@@ -5,10 +5,14 @@ services:
     image: ubuntu:22.04
     volumes:
       - 'container1_data:/data'
+      - './container1.sh:/container1.sh'
+    command: '/container1.sh'
   container2:
     image: ubuntu:22.04
     volumes:
       - 'container2_data:/data'
+      - './container1.sh:/container2.sh'
+    command: '/container2.sh'
   backup:
     build:
       context: ../..
