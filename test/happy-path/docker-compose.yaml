@@ -6,13 +6,13 @@ services:
     volumes:
       - './backup/container1:/mnt/src:ro'
       - 'container1_data:/mnt/dst'
-    command: ["cp", "-r", "/mnt/src/", "/mnt/dst"]
+    command: ["cp", "-r", "/mnt/src/*", "/mnt/dst"]
   container2:
     image: ubuntu:22.04
     volumes:
       - './backup/container2:/mnt/src:ro'
       - 'container2_data:/mnt/dst'
-    command: ["cp", "-r", "/mnt/src/", "/mnt/dst"]
+    command: ["cp", "-r", "/mnt/src/*", "/mnt/dst"]
   backup:
     build:
       context: ../..
