@@ -22,6 +22,6 @@ client = boto3.client('s3')
 while True:
     backup_tarfile = f'/tmp/{filename_prefix}-{int(time.time())}.tar.gz'
     print(f"Creating new backup at [{backup_tarfile}]")
-    with tarfile.open('/backup', "w:gz") as tar:
-        tar.add(source_directory)
+    with tarfile.open(backup_tarfile, "w:gz") as tar:
+        tar.add('/backup', arcname='backup')
     time.sleep(sleep_seconds)
