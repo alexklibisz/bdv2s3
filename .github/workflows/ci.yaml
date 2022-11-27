@@ -42,7 +42,7 @@ jobs:
         run: |
           ./test/happy-path/local.sh
       - name: Run Containers
-        timeout_minutes: 1
+        timeout-minutes: 1
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
