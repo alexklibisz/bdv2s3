@@ -5,12 +5,13 @@ services:
     image: bitnami/postgresql:15.1.0
     volumes:
       - 'test_postgresql_data:/bitnami/postgresql'
-      - './container.sh:/container.sh'
     environment:
       - POSTGRESQL_POSTGRES_PASSWORD=postgres
       - POSTGRESQL_DATABASE=test
       - POSTGRESQL_USERNAME=test
       - POSTGRESQL_PASSWORD=test
+    ports:
+      - "5432:5432"
     labels:
       - bdv2s3.stop-during-backup=true
   backup:

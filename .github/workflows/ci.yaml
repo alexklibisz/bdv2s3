@@ -1,5 +1,4 @@
 name: "CI"
-
 on:
   pull_request:
     branches:
@@ -7,11 +6,9 @@ on:
   push:
     branches:
       - main
-
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   show-github-context:
     timeout-minutes: 1
@@ -20,7 +17,6 @@ jobs:
       GITHUB_CONTEXT: ${{ toJson(github) }}
     steps:
       - run: echo $GITHUB_CONTEXT
-
   test-postgres:
     runs-on: ubuntu-22.04
     env:
@@ -29,6 +25,11 @@ jobs:
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       AWS_DEFAULT_REGION: us-east-1
       AWS_S3_KEY_PREFIX: test/postgres/${{ github.run_number }}/
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: test
+      PGPASSWORD: test
+      PGDATABASE: test
     steps:
       - name: Checkout
         timeout-minutes: 1
@@ -56,7 +57,8 @@ jobs:
         timeout-minutes: 1
         working-directory: test/postgres
         run: |
-          echo "..."
+          ./insert-data.sh
+          ./select-data.sh > before.txt
       - name: Run Backup
         timeout-minutes: 1
         working-directory: test/postgres
@@ -86,4 +88,6 @@ jobs:
       - name: Validate Backup
         working-directory: test/postgres
         run: |
-          echo "..."
+          ./select-data.sh > after.txt
+          md5sum before.txt
+          md5sum after.txt
