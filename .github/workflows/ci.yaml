@@ -33,7 +33,7 @@ jobs:
     steps:
       - name: Checkout
         timeout-minutes: 1
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install Docker Compose
         timeout-minutes: 1
         run: |
@@ -52,7 +52,10 @@ jobs:
       - name: Start Containers
         timeout-minutes: 1
         working-directory: test/postgres
-        run: docker-compose up -d --build
+        run: |
+          docker-compose up -d --build
+          pg_isready -h localhost -p 5432 || sleep 5
+          pg_isready -h localhost -p 5432
       - name: Insert Data
         timeout-minutes: 1
         working-directory: test/postgres
