@@ -77,7 +77,7 @@ jobs:
       - name: Stop Containers
         timeout-minutes: 1
         working-directory: test/postgres
-        run: docker-compose down --volumes
+        run: docker-compose down
       - name: Extract Backup
         working-directory: test/postgres
         run: |
@@ -88,6 +88,7 @@ jobs:
         timeout-minutes: 1
         working-directory: test/postgres
         run: |
+          docker volume rm test_postgresql_data
           docker volume create test_postgresql_data
           docker run --rm -v $PWD/backup/test_postgresql_data:/backup -v test_postgresql_data:/restore eeacms/rsync:2.4 rsync -avz /backup/ /restore/
       - name: Restart Containers
@@ -101,5 +102,11 @@ jobs:
         working-directory: test/postgres
         run: |
           ./select-data.sh > after.txt
-          md5sum before.txt
-          md5sum after.txt
+          cmp before.txt after.txt
+      - name: Stop Containers
+        if: ${{ always() }}
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: |
+          docker-compose logs
+          docker-compose down --volumes
