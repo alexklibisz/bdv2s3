@@ -31,4 +31,7 @@ echo "Copying backup to S3"
 aws s3 cp backup.tar.gz s3://$AWS_S3_BUCKET/$AWS_S3_KEY
 rm backup.tar.gz
 
+echo "Calling heartbeat URL"
+curl -f $HEARTBEAT_URL
+
 echo "All done"
