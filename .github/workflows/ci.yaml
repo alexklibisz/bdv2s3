@@ -58,29 +58,32 @@ jobs:
         run: |
           echo "..."
       - name: Run Backup
+        timeout-minutes: 1
+        working-directory: test/postgres
         env:
           COMPOSE_INTERACTIVE_NO_CLI: 1
-        run: |
-          cd test/postgres
-          docker-compose exec -T backup /backup.sh
+        run: docker-compose exec -T backup /backup.sh
       - name: Stop Containers
+        timeout-minutes: 1
         working-directory: test/postgres
-        run: |
-          docker-compose down --volumes
+        run: docker-compose down --volumes
       - name: Extract Backup
+        working-directory: test/postgres
         run: |
           aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
           export BACKUP_FNAME=$(find . -name '*.tar.gz' | grep $AWS_S3_KEY_PREFIX | tail -n1)
           tar xvf $BACKUP_FNAME
       - name: Restore Backup
+        timeout-minutes: 1
+        working-directory: test/postgres
         run: |
           docker volume create test_postgresql_data
-          docker run --rm -v $PWD/backup/test_postgresql_data:/backup -v test_postgresql_data:/restore ubuntu:22.04 /bin/bash -c "cp -rv /backup/* /restore && chown -R 1001:root /restore"\
+          docker run --rm -v $PWD/backup/test_postgresql_data:/backup -v test_postgresql_data:/restore eeacms/rsync:2.4 rsync -avz /backup/ /restore/
       - name: Restart Containers
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: docker-compose up -d
+      - name: Validate Backup
+        working-directory: test/postgres
         run: |
-          docker-compose up -d
-      # - name: Check Backups
-      #   run: |
-      #     aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX-*"
-      #     find . -name '*.tar.gz' | grep $AWS_S3_KEY_PREFIX | xargs md5sum
-      #     find . -name '*.tar.gz' | grep $AWS_S3_KEY_PREFIX | xargs cmp --silent $1 /backup.tar.gz
+          echo "..."
