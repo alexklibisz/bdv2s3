@@ -9,7 +9,7 @@ create table random_data (
 );
 insert into random_data(int, str)
 select (random() * 1000000)::int, md5(random()::text)
-from generate_series(1, 100000);
+from generate_series(1, 1000);
 select * from random_data limit 10;
 select count(*) from random_data;
 END_OF_SQL
