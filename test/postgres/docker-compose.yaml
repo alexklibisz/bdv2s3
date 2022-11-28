@@ -18,7 +18,7 @@ services:
       context: ../..
       dockerfile: Dockerfile
     volumes:
-      - 'test_postgresql_data:/backup/postgresql_data:ro'
+      - 'test_postgresql_data:/backup/test_postgresql_data:ro'
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - AWS_S3_BUCKET=${AWS_S3_BUCKET}
