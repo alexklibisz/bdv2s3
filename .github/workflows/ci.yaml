@@ -103,6 +103,9 @@ jobs:
         working-directory: test/postgres
         run: |
           ./select-data.sh > after-restore.txt
+          md5sum before-backup.txt
+          md5sum after-backup.txt
+          md5sum after-restore.txt
           cmp before-backup.txt after-restore.txt
       - name: Stop containers
         if: ${{ always() }}
