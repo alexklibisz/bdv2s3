@@ -87,7 +87,10 @@ jobs:
       - name: Restart Containers
         timeout-minutes: 1
         working-directory: test/postgres
-        run: docker-compose up -d
+        run: |
+          docker-compose up -d
+          pg_isready -h localhost -p 5432 || sleep 5
+          pg_isready -h localhost -p 5432
       - name: Validate Backup
         working-directory: test/postgres
         run: |
