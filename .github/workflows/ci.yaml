@@ -34,12 +34,12 @@ jobs:
       - name: Checkout
         timeout-minutes: 1
         uses: actions/checkout@v3
-      - name: Install Docker Compose
+      - name: Install docker-compose
         timeout-minutes: 1
         run: |
           sudo apt -qq install -y docker-compose
           docker-compose --version
-      - name: Install Postgres Client
+      - name: Install postgres client
         timeout-minutes: 1
         run: |
           sudo apt -qq install -y postgresql-client
@@ -49,28 +49,25 @@ jobs:
         run: |
           sudo apt -qq install -y awscli
           aws --version
-      - name: Start Containers
+      - name: Start containers
         timeout-minutes: 1
         working-directory: test/postgres
         run: |
           docker-compose up -d --build
           pg_isready -h localhost -p 5432 || sleep 5
           pg_isready -h localhost -p 5432
-      - name: Insert Data
+      - name: Insert data
         timeout-minutes: 1
         working-directory: test/postgres
         run: ./insert-data.sh
-      - name: Select Data Before Backup
+      - name: Select data before backup
         timeout-minutes: 1
         working-directory: test/postgres
         run: ./select-data.sh > before-backup.txt
-      - name: Run Backup
-        timeout-minutes: 1
-        working-directory: test/postgres
-        env:
-          COMPOSE_INTERACTIVE_NO_CLI: 1
-        run: docker-compose exec -T backup /backup.sh
-      - name: Select Data After Backup
+      - name: Wait for the backup to run
+        timeout-minutes: 2
+        run: sleep 60
+      - name: Select data after backup
         timeout-minutes: 1
         working-directory: test/postgres
         run: |
@@ -78,36 +75,36 @@ jobs:
           pg_isready -h localhost -p 5432
           ./select-data.sh > after-backup.txt
           cmp before-backup.txt after-backup.txt
-      - name: Stop Containers
+      - name: Stop containers
         timeout-minutes: 1
         working-directory: test/postgres
         run: docker-compose down
-      - name: Extract Backup
+      - name: Extract backup
         working-directory: test/postgres
         run: |
           aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
           export BACKUP_FNAME=$(find . -name '*.tar.gz' | grep $AWS_S3_KEY_PREFIX | tail -n1)
           tar xvf $BACKUP_FNAME
-      - name: Restore Backup
+      - name: Restore backup
         timeout-minutes: 1
         working-directory: test/postgres
         run: |
           docker volume rm test_postgresql_data
           docker volume create test_postgresql_data
           docker run --rm -v $PWD/backup/test_postgresql_data:/backup -v test_postgresql_data:/restore eeacms/rsync:2.4 rsync -avz /backup/ /restore/
-      - name: Restart Containers
+      - name: Restart containers
         timeout-minutes: 1
         working-directory: test/postgres
         run: |
           docker-compose up -d
           pg_isready -h localhost -p 5432 || sleep 5
           pg_isready -h localhost -p 5432
-      - name: Validate Backup
+      - name: Validate backup
         working-directory: test/postgres
         run: |
           ./select-data.sh > after-restore.txt
           cmp before-backup.txt after-restore.txt
-      - name: Stop Containers
+      - name: Stop containers
         if: ${{ always() }}
         timeout-minutes: 1
         working-directory: test/postgres

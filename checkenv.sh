@@ -2,6 +2,10 @@
 set -e
 
 ERROR=0
+if [[ -z "$BACKUP_CRON_EXPRESSION" ]]; then
+    echo "Must provide BACKUP_CRON_EXPRESSION in environment" 1>&2
+    ERROR=1
+fi
 if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
     echo "Must provide AWS_ACCESS_KEY_ID in environment" 1>&2
     ERROR=1

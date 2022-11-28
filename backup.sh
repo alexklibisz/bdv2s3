@@ -2,6 +2,8 @@
 set -e
 /bin/sh /checkenv.sh
 
+cd /
+
 AWS_S3_KEY="$AWS_S3_KEY_PREFIX$(date +%Y%m%d%H%M%S).tar.gz"
 echo "Creating new backup with key [${AWS_S3_KEY}]"
 
