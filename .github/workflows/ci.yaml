@@ -68,6 +68,12 @@ jobs:
         env:
           COMPOSE_INTERACTIVE_NO_CLI: 1
         run: docker-compose exec -T backup /backup.sh
+      - name: Check Postgres Connection
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: |
+          pg_isready -h localhost -p 5432 || sleep 5
+          pg_isready -h localhost -p 5432
       - name: Stop Containers
         timeout-minutes: 1
         working-directory: test/postgres
