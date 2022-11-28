@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
-pg_isready -h $PGHOST -p $PGPORT || sleep 5
-pg_isready -h $PGHOST -p $PGPORT
+pg_isready -h $PGHOST -p $PGPORT -t 5
 time psql -v ON_ERROR_STOP=1 <<END_OF_SQL
 drop table if exists random_data;
 create table random_data (
