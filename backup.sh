@@ -18,7 +18,6 @@ tar cvf backup.tar --sort=name ./backup
 md5sum backup.tar
 gzip -f -n backup.tar
 md5sum backup.tar.gz
-echo "Completed backup"
 
 echo "Starting containers that were stopped"
 for C in $CONTAINERS_TO_STOP

@@ -59,21 +59,25 @@ jobs:
       - name: Insert Data
         timeout-minutes: 1
         working-directory: test/postgres
-        run: |
-          ./insert-data.sh
-          ./select-data.sh > before.txt
+        run: ./insert-data.sh
+      - name: Select Data Before Backup
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: ./select-data.sh > before-backup.txt
       - name: Run Backup
         timeout-minutes: 1
         working-directory: test/postgres
         env:
           COMPOSE_INTERACTIVE_NO_CLI: 1
         run: docker-compose exec -T backup /backup.sh
-      - name: Check Postgres Connection
+      - name: Select Data After Backup
         timeout-minutes: 1
         working-directory: test/postgres
         run: |
           pg_isready -h localhost -p 5432 || sleep 5
           pg_isready -h localhost -p 5432
+          ./select-data.sh > after-backup.txt
+          cmp before-backup.txt after-backup.txt
       - name: Stop Containers
         timeout-minutes: 1
         working-directory: test/postgres
@@ -101,8 +105,8 @@ jobs:
       - name: Validate Backup
         working-directory: test/postgres
         run: |
-          ./select-data.sh > after.txt
-          cmp before.txt after.txt
+          ./select-data.sh > after-restore.txt
+          cmp before-backup.txt after-restore.txt
       - name: Stop Containers
         if: ${{ always() }}
         timeout-minutes: 1
