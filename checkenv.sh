@@ -30,6 +30,10 @@ if [[ -z "$HEARTBEAT_URL" ]]; then
     echo "Must provide HEARTBEAT_URL in environment" 1>&2
     ERROR=1
 fi
+if [[ -z "$ENCRYPTION_KEY" ]]; then
+    echo "Must provide ENCRYPTION_KEY in environment" 1>&2
+    ERROR=1
+fi
 if [[ "$ERROR" == 1 ]]; then
     exit 1
 fi

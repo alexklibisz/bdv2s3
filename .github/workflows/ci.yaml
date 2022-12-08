@@ -30,6 +30,7 @@ jobs:
       PGUSER: test
       PGPASSWORD: test
       PGDATABASE: test
+      ENCRYPTION_KEY: password${{ github.run_number }}
     steps:
       - name: Checkout
         timeout-minutes: 1
