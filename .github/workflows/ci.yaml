@@ -91,7 +91,7 @@ jobs:
         run: |
           export BACKUP_FNAME=$(find . -name '*.tar.gz.gpg' | grep $AWS_S3_KEY_PREFIX | tail -n1)
           echo $BACKUP_FNAME
-          gpg --batch --decrypt --passphrase $ENCRYPTION_KEY -o backup.tar.gz
+          gpg --batch --decrypt --passphrase $ENCRYPTION_KEY -o backup.tar.gz $BACKUP_FNAME
       - name: Extract backup
         working-directory: test/postgres
         run: |
