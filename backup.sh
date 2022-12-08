@@ -20,7 +20,7 @@ tar cvf backup.tar --sort=name ./backup
 md5sum backup.tar
 gzip -f -n backup.tar
 md5sum backup.tar.gz
-gpg --batch --encrypt --symmetric --cipher-algo aes256 --passphrase $ENCRYPTION_KEY -o backup.tar.gz.gpg backup.tar.gz
+gpg --batch --symmetric --cipher-algo aes256 --passphrase $ENCRYPTION_KEY -o backup.tar.gz.gpg backup.tar.gz
 md5sum backup.tar.gz.gpg
 
 echo "Starting containers that were stopped"
