@@ -102,7 +102,7 @@ jobs:
         run: |
           docker volume rm test_postgresql_data
           docker volume create test_postgresql_data
-          docker run --rm -v $PWD/backup/test_postgresql_data:/backup -v test_postgresql_data:/restore eeacms/rsync:2.4 rsync -avz /backup/ /restore/
+          docker run --rm -v $PWD/backup/test_postgresql_data:/backup -v test_postgresql_data:/restore eeacms/rsync:2.4 rsync -az /backup/ /restore/
       - name: Restart containers
         timeout-minutes: 1
         working-directory: test/postgres
