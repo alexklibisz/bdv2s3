@@ -35,6 +35,8 @@ jobs:
       - name: Checkout
         timeout-minutes: 1
         uses: actions/checkout@v3
+      - name: Install gpg
+        run: gpg --version
       - name: Install docker-compose
         timeout-minutes: 1
         run: |
