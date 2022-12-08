@@ -82,14 +82,20 @@ jobs:
         timeout-minutes: 1
         working-directory: test/postgres
         run: docker-compose down
-      - name: Extract backup
+      - name: Copy backup from S3
         working-directory: test/postgres
         run: |
           aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
+      - name: Decrypt backup
+        working-directory: test/postgres
+        run: |
           export BACKUP_FNAME=$(find . -name '*.tar.gz.gpg' | grep $AWS_S3_KEY_PREFIX | tail -n1)
           echo $BACKUP_FNAME
-          gpg --batch --decrypt --passphrase $ENCRYPTION_KEY $BACKUP_FNAME | tar xzf -
-          tar xvf $BACKUP_FNAME
+          gpg --batch --decrypt --passphrase $ENCRYPTION_KEY -o backup.tar.gz
+      - name: Extract backup
+        working-directory: test/postgres
+        run: |
+          tar xzf backup.tar.gz
       - name: Restore backup
         timeout-minutes: 1
         working-directory: test/postgres
