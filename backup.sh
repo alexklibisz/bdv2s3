@@ -20,6 +20,8 @@ tar cvf backup.tar --sort=name ./backup
 md5sum backup.tar
 gzip -f -n backup.tar
 md5sum backup.tar.gz
+gpg --batch --encrypt --symmetric --cipher-algo aes256 --passphrase $ENCRYPTION_KEY -o backup.tar.gz.gpg backup.tar.gz
+md5sum backup.tar.gz.gpg
 
 echo "Starting containers that were stopped"
 for C in $CONTAINERS_TO_STOP
@@ -29,8 +31,8 @@ do
 done
 
 echo "Copying backup to S3"
-aws s3 cp backup.tar.gz s3://$AWS_S3_BUCKET/$AWS_S3_KEY
-rm backup.tar.gz
+aws s3 cp backup.tar.gz.gpg s3://$AWS_S3_BUCKET/$AWS_S3_KEY
+rm backup.tar.gz backup.tar.gz.gpg
 
 echo "Calling heartbeat URL"
 curl -f $HEARTBEAT_URL
