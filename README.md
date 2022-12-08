@@ -2,4 +2,4 @@
 
 backup docker volume to s3
 
-Basically an opinionated version of https://github.com/jareware/docker-volume-backup
+Basically an opinionated version of https://github.com/jareware/docker-volume-backup.
