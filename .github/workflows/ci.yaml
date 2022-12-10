@@ -131,6 +131,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build Image
-        runs: |
+        run: |
           docker build . -t bdv2s3
 
