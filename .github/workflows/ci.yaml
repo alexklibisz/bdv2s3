@@ -125,3 +125,12 @@ jobs:
         run: |
           docker-compose logs
           docker-compose down --volumes
+  test-publish:
+    name: Test publishing to Github container registry
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Image
+        runs: |
+          docker build . -t bdv2s3
+
