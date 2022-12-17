@@ -1,16 +1,14 @@
 # bdv2s3
 
-"backup docker volume to s3"
-
-Basically a simplified, opinionated version of https://github.com/jareware/docker-volume-backup.
+"backup docker volume to s3" — basically a simplified, opinionated version of [jareware/docker-volume-backup](https://github.com/jareware/docker-volume-backup).
 
 ## Reference
 
-### Behavior
+### Functionality
 
-* Run the bdv2s3 container as part of your docker-compose stack. Mount the docker volumes that you want to to backup in the `/backup` directory.
+* Run the bdv2s3 container as part of your docker-compose stack. Mount the docker volumes that you want to backup in the `/backup` directory.
 * The container runs backups on the specified cron schedule, based on the `$BACKUP_CRON_EXPRESSION` environment variable.
-* The backup runs as follows:
+* When the cron triggers, the backup runs as follows:
     * Stops any containers with the label `bdv2s3.stop-during-backup=true`
     * Tars the `/backup` directory.
     * Gzips the tar file.
