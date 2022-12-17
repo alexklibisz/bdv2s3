@@ -30,7 +30,7 @@ do
     docker start $C
 done
 
-echo "Copying backup to S3"
+echo "Copying backup to s3://$AWS_S3_BUCKET/$AWS_S3_KEY"
 aws s3 cp backup.tar.gz.gpg s3://$AWS_S3_BUCKET/$AWS_S3_KEY
 rm backup.tar.gz backup.tar.gz.gpg
 
