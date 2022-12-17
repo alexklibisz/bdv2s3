@@ -46,7 +46,7 @@ jobs:
       - name: Install docker-compose
         timeout-minutes: 1
         run: |
-          curl --fail --silent https://github.com/docker/compose/releases/download/v2.14.1/docker-compose-linux-aarch64 > $RUNNER_TEMP/bin/docker-compose
+          curl -fSL https://github.com/docker/compose/releases/download/v2.14.1/docker-compose-linux-aarch64 > $RUNNER_TEMP/bin/docker-compose
           chmod +x $RUNNER_TEMP/bin/docker-compose
           docker-compose --version | grep "2.14.1"
       - name: Install postgres client
