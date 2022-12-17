@@ -4,6 +4,10 @@
 
 ## Reference
 
+### Usecase
+
+I use this to backup docker-compose volumes in some self-hosted apps.
+
 ### Functionality
 
 * Run the bdv2s3 container as part of your docker-compose stack. Mount the docker volumes that you want to backup in the `/backup` directory.
