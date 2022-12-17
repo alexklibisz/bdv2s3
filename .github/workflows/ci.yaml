@@ -57,7 +57,9 @@ jobs:
       - name: Start containers
         timeout-minutes: 1
         working-directory: test/postgres
-        run: docker-compose up -d --build --wait
+        run: |
+          docker-compose up --help
+          docker-compose up -d --build --wait
       - name: Insert data
         timeout-minutes: 1
         working-directory: test/postgres
