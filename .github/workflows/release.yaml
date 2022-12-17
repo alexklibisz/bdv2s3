@@ -1,0 +1,36 @@
+name: "Release"
+on:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  show-github-context:
+    name: Show Github Context
+    timeout-minutes: 1
+    runs-on: ubuntu-22.04
+    env:
+      GITHUB_CONTEXT: ${{ toJson(github) }}
+    steps:
+      - run: echo $GITHUB_CONTEXT > /dev/null
+  release:
+    name: Release
+    runs-on: ubuntu-22.04
+    env:
+      GITHUB_CONTEXT: ${{ toJson(github) }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set Docker Tag
+        run: echo "TAG=release-$(git show -s --format=%ct)" >> $GITHUB_ENV
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Image
+        run: docker build . -t ghcr.io/${{ github.repository_owner }}/bdv2s3:$TAG
+      - name: Push Image
+        run: docker push ghcr.io/${{ github.repository_owner }}/bdv2s3:$TAG
+      - name: Create Github Release
+        run: gh release create $TAG --generate-notesd

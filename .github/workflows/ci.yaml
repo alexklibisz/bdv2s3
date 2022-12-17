@@ -17,7 +17,7 @@ jobs:
     env:
       GITHUB_CONTEXT: ${{ toJson(github) }}
     steps:
-      - run: echo $GITHUB_CONTEXT
+      - run: echo $GITHUB_CONTEXT > /dev/null
   test-postgres:
     name: End-to-end Postgres test
     runs-on: ubuntu-22.04
