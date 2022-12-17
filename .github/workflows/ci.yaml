@@ -42,7 +42,7 @@ jobs:
       - name: Install docker-compose
         timeout-minutes: 1
         run: |
-          sudo apt -qq install -y docker-compose
+          pip install docker-compose==2.6.1
           docker-compose --version
       - name: Install postgres client
         timeout-minutes: 1
