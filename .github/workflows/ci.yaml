@@ -1,0 +1,145 @@
+name: "CI"
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  show-github-context:
+    name: Show Github Context
+    timeout-minutes: 1
+    runs-on: ubuntu-22.04
+    env:
+      GITHUB_CONTEXT: ${{ toJson(github) }}
+    steps:
+      - run: echo $GITHUB_CONTEXT
+  test-postgres:
+    name: End-to-end Postgres test
+    runs-on: ubuntu-22.04
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_S3_KEY_PREFIX: test/postgres/${{ github.run_number }}/
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: test
+      PGPASSWORD: test
+      PGDATABASE: test
+      ENCRYPTION_KEY: password${{ github.run_number }}
+    steps:
+      - name: Checkout
+        timeout-minutes: 1
+        uses: actions/checkout@v3
+      - name: Install gpg
+        run: gpg --version
+      - name: Install docker-compose
+        timeout-minutes: 1
+        run: |
+          sudo apt -qq install -y docker-compose
+          docker-compose --version
+      - name: Install postgres client
+        timeout-minutes: 1
+        run: |
+          sudo apt -qq install -y postgresql-client
+          psql --version
+      - name: Install AWS CLI
+        timeout-minutes: 1
+        run: |
+          sudo apt -qq install -y awscli
+          aws --version
+      - name: Start containers
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: |
+          docker-compose up -d --build
+          pg_isready -h localhost -p 5432 || sleep 5
+          pg_isready -h localhost -p 5432
+      - name: Insert data
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: ./insert-data.sh
+      - name: Select data before backup
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: ./select-data.sh > before-backup.txt
+      - name: Wait for the backup to run
+        timeout-minutes: 2
+        run: sleep 60
+      - name: Select data after backup
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: |
+          pg_isready -h localhost -p 5432 || sleep 5
+          pg_isready -h localhost -p 5432
+          ./select-data.sh > after-backup.txt
+          cmp before-backup.txt after-backup.txt
+      - name: Stop containers
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: docker-compose down
+      - name: Copy backup from S3
+        working-directory: test/postgres
+        run: |
+          aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
+      - name: Decrypt backup
+        working-directory: test/postgres
+        run: |
+          export BACKUP_FNAME=$(find . -name '*.tar.gz.gpg' | grep $AWS_S3_KEY_PREFIX | tail -n1)
+          echo $BACKUP_FNAME
+          gpg --batch --decrypt --passphrase $ENCRYPTION_KEY -o backup.tar.gz $BACKUP_FNAME
+      - name: Extract backup
+        working-directory: test/postgres
+        run: |
+          tar xzf backup.tar.gz
+      - name: Restore backup
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: |
+          docker volume rm test_postgresql_data
+          docker volume create test_postgresql_data
+          docker run --rm -v $PWD/backup/test_postgresql_data:/backup -v test_postgresql_data:/restore eeacms/rsync:2.4 rsync -az /backup/ /restore/
+      - name: Restart containers
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: |
+          docker-compose up -d
+          pg_isready -h localhost -p 5432 || sleep 5
+          pg_isready -h localhost -p 5432
+      - name: Validate backup
+        working-directory: test/postgres
+        run: |
+          ./select-data.sh > after-restore.txt
+          md5sum before-backup.txt
+          md5sum after-backup.txt
+          md5sum after-restore.txt
+          cmp before-backup.txt after-restore.txt
+      - name: Stop containers
+        if: ${{ always() }}
+        timeout-minutes: 1
+        working-directory: test/postgres
+        run: |
+          docker-compose logs
+          docker-compose down --volumes
+  test-publish:
+    name: Test publishing to Github container registry
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Image
+        run: docker build . -t ghcr.io/${{ github.repository_owner }}/bdv2s3:pr-${{ github.event.number }}
+      - name: Push Image
+        run: docker push ghcr.io/${{ github.repository_owner }}/bdv2s3:pr-${{ github.event.number }}
+

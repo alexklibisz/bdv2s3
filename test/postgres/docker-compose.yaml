@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: bitnami/postgresql:15.1.0
+    volumes:
+      - 'test_postgresql_data:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=test
+      - POSTGRESQL_USERNAME=test
+      - POSTGRESQL_PASSWORD=test
+    ports:
+      - "5432:5432"
+    labels:
+      - bdv2s3.stop-during-backup=true
+  backup:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    volumes:
+      - 'test_postgresql_data:/backup/test_postgresql_data:ro'
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - AWS_S3_KEY_PREFIX=${AWS_S3_KEY_PREFIX}
+      - HEARTBEAT_URL=https://github.com
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - BACKUP_CRON_EXPRESSION=* * * * *
+volumes:
+  test_postgresql_data:
+    name: test_postgresql_data
+    driver: local
