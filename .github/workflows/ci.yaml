@@ -42,7 +42,7 @@ jobs:
       - name: Install docker-compose
         timeout-minutes: 1
         run: |
-          echo $GITHUB_PATH
+          cat $GITHUB_PATH
           curl https://github.com/docker/compose/releases/download/v2.14.1/docker-compose-linux-aarch64 > ~/.local/bin/docker-compose
           chmod +x ~/.local/bin/docker-compose
           docker-compose --version
