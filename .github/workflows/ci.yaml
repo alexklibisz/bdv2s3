@@ -11,6 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   show-github-context:
+    name: Show Github Context
     timeout-minutes: 1
     runs-on: ubuntu-22.04
     env:
@@ -138,6 +139,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Image
-        run: |
-          docker build . -t bdv2s3:latest
+        run: docker build . -t bdv2s3:${{ github.event.number }}
+      - name: Push Image
+        run: docker push bdv2s3:${{ github.event.number }}
 
