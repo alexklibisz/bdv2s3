@@ -47,8 +47,6 @@ jobs:
         uses: KengoTODA/actions-setup-docker-compose@main
         with:
           version: '2.14.1'
-      - name: Check
-        run: docker-compose --version
       - name: Install postgres client
         timeout-minutes: 1
         run: |
@@ -62,9 +60,7 @@ jobs:
       - name: Start containers
         timeout-minutes: 1
         working-directory: test/postgres
-        run: |
-          docker-compose up --help
-          docker-compose up -d --build --wait
+        run: docker-compose up --build --wait
       - name: Insert data
         timeout-minutes: 1
         working-directory: test/postgres
