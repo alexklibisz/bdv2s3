@@ -14,6 +14,11 @@ services:
       - "5432:5432"
     labels:
       - bdv2s3.stop-during-backup=true
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "5432", "-U", "test"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
   backup:
     build:
       context: ../..
@@ -30,6 +35,12 @@ services:
       - HEARTBEAT_URL=https://github.com
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - BACKUP_CRON_EXPRESSION=* * * * *
+    healthcheck:
+      test: ["CMD", "ls", "/backup/test_postgresql_data"]
+      interval: 1s
+      timeout: 1s
+      retries: 5
+      start_period: 1s
 volumes:
   test_postgresql_data:
     name: test_postgresql_data

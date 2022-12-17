@@ -57,10 +57,7 @@ jobs:
       - name: Start containers
         timeout-minutes: 1
         working-directory: test/postgres
-        run: |
-          docker-compose up -d --build
-          pg_isready -h localhost -p 5432 || sleep 5
-          pg_isready -h localhost -p 5432
+        run: docker-compose up -d --build --wait
       - name: Insert data
         timeout-minutes: 1
         working-directory: test/postgres
@@ -76,7 +73,7 @@ jobs:
         timeout-minutes: 1
         working-directory: test/postgres
         run: |
-          pg_isready -h localhost -p 5432 || sleep 5
+          pg_isready -h localhost -p 5432 || sleep 10
           pg_isready -h localhost -p 5432
           ./select-data.sh > after-backup.txt
           cmp before-backup.txt after-backup.txt
@@ -108,10 +105,7 @@ jobs:
       - name: Restart containers
         timeout-minutes: 1
         working-directory: test/postgres
-        run: |
-          docker-compose up -d
-          pg_isready -h localhost -p 5432 || sleep 5
-          pg_isready -h localhost -p 5432
+        run: docker-compose up -d --wait
       - name: Validate backup
         working-directory: test/postgres
         run: |
