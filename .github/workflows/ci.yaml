@@ -51,10 +51,7 @@ jobs:
       - name: Install AWS CLI
         timeout-minutes: 1
         working-directory: ${{ env.RUNNER_TEMP }}
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
+        run: aws --version
       - name: Start containers
         timeout-minutes: 1
         working-directory: test/postgres
