@@ -34,6 +34,10 @@ if [[ -z "$ENCRYPTION_KEY" ]]; then
     echo "Must provide ENCRYPTION_KEY in environment" 1>&2
     ERROR=1
 fi
+if [[ -z "$STOP_CONTAINERS_LABEL" ]]; then
+    echo "Must provide STOP_CONTAINERS_LABEL in environment" 1>&2
+    ERROR=1
+fi
 if [[ "$ERROR" == 1 ]]; then
     exit 1
 fi

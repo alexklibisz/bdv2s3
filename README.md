@@ -38,8 +38,12 @@ services:
       # Mount the volume in the container that actually uses it.
       - 'my_volume:/backup'
     labels:
-      # Set this to stop this container during backup.
-      - bdv2s3.stop-during-backup=true
+      # Set this label here, and define it again as STOP_CONTAINERS_LABEL for the backup container.
+      # The backup container will stop any other containers that have this label.
+      # Note that any containers matching this key are going to be stopped, not just containers
+      # in the local docker-compose stack.
+      # So if the host is running multiple docker-compose stacks, make this label unique.
+      - bdv2s3.some-arbitrary-key
   backup:
     # See https://github.com/alexklibisz/bdv2s3/pkgs/container/bdv2s3 for specific tags
     image: ghcr.io/alexklibisz/bdv2s3:latest
@@ -54,10 +58,17 @@ services:
       # Cron schedule for running the backup.
       - BACKUP_CRON_EXPRESSION=0 8 * * *
 
-      # The bucket containing your backups.
+      # Encryption key for encrypting the backup.
+      # The backup is encrypted with gpg.
+      - ENCRYPTION_KEY=***
+
+      # Containers matching this label will be stopped during the backup.
+      - STOP_CONTAINERS_LABEL=bdv2s3.some-arbitrary-key
+
+      # The bucket where backups are stored.
       - AWS_S3_BUCKET=my-volume-backup-bucket
 
-      # The prefix for each backup object.
+      # The prefix for each backup object in S3.
       # The suffix is the $(date +%Y%m%d%H%M%S).tar.gz.gpg.
       # e.g., my-volume-20221217164419.tar.gz.gpg
       - AWS_S3_KEY_PREFIX=my-volume-
@@ -74,9 +85,7 @@ services:
       # A heartbeat URL that is called after each successful backup, letting us monitor and alert on the backup.
       - HEARTBEAT_URL=https://heartbeat.uptimerobot.com/abcdefg
 
-      # Encryption key for encrypting the backup.
-      # The backup is encrypted with gpg.
-      - ENCRYPTION_KEY=***
+
 ```
 
 ## Example restoring from backup
