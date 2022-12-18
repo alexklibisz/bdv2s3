@@ -16,9 +16,9 @@ services:
       - bdv2s3.stop-during-backup=true
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "5432", "-U", "test"]
-      interval: 10s
-      timeout: 10s
-      retries: 3
+      interval: 5s
+      timeout: 5s
+      retries: 10
       start_period: 5s
   heartbeat-server:
     image: nginx:1.23.3
