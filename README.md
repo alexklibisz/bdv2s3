@@ -2,13 +2,11 @@
 
 "backup docker volume to s3" — basically a simplified, opinionated version of [jareware/docker-volume-backup](https://github.com/jareware/docker-volume-backup).
 
-## Reference
-
-### Usecase
+## Usecase
 
 I use this to backup docker-compose volumes in some self-hosted apps.
 
-### Functionality
+## Functionality
 
 * Run the bdv2s3 container as part of your docker-compose stack. Mount the docker volumes that you want to backup in the `/backup` directory.
 * The container runs backups on the specified cron schedule, based on the `$BACKUP_CRON_EXPRESSION` environment variable.
@@ -22,7 +20,7 @@ I use this to backup docker-compose volumes in some self-hosted apps.
     * Pushes the backup file to `s3://$AWS_S3_BUCKET/$AWS_S3_KEY_PREFIX-$(date +%Y%m%d%H%M%S).tar.gz.gpg`, using the `$AWS_S3_ACCESS_KEY_ID`, `$AWS_S3_ACCESS_KEY`, and `$AWS_DEFAULT_REGION`.
     * curls the `$HEARTBEAT_URL` to indicate a successful backup.
 
-### Example backup container
+## Example backup container
 
 ```yaml
 version: '3.8'
@@ -81,6 +79,29 @@ services:
       - ENCRYPTION_KEY=***
 ```
 
-### End-to-end example, including restoring the backup
+## Example restoring from backup
+
+The restore process will generally look something like this:
+
+Let's say the backup was stored at `s3://my-volume-backup-bucket/my-volume-20221217000000.tar.gz.gpg` and we want to restore it to the volume called `my_volume`.
+
+```bash
+# Download the backup from S3.
+$ aws s3 cp s3://my-volume-backup-bucket/backup-20221217000000.tar.gz.gpg .
+# Decrypt the backup (this will prompt for the passphrase).
+$ gpg --batch --decrypt -o backup.tar.gz backup-20221217000000.tar.gz.gpg
+# Shut down the docker-compose stack (if it's currently running).
+$ docker-compose down
+# Delete the volume (if it's still around locally).
+$ docker volume rm my_volume
+# Re-create the volume.
+$ docker volume create my_volume
+# Run an rsync container with the backup directory and the volume mounted to restore the backup.
+$ docker run --rm -v ./backup/my_volume:/backup -v my_volume:/restore eeacms/rsync:2.4 rsync -az /backup/ /restore/
+# Re-start the docker-compose stack.
+$ docker-compose up
+```
+
+## End-to-end example
 
 For an end-to-end example, see [test/postgres/docker-compose.yaml](./test/postgres/docker-compose.yaml) and the test-postgres job in [.github/workflows/ci.yaml](.github/workflows/ci.yaml).
