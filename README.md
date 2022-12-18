@@ -11,10 +11,9 @@ I use this to backup docker-compose volumes in some self-hosted apps.
 * Run the bdv2s3 container as part of your docker-compose stack. Mount the docker volumes that you want to backup in the `/backup` directory.
 * The container runs backups on the specified cron schedule, based on the `$BACKUP_CRON_EXPRESSION` environment variable.
 * When the cron triggers, the backup runs as follows:
-    * Stops any containers with the label `bdv2s3.stop-during-backup=true`
-    * Tars the `/backup` directory.
-    * Gzips the tar file.
-    * Encrypts the gzipped tar file using the `$ENCRYPTION_KEY` environment variable.
+    * Stops any containers with a label matching '$STOP_CONTAINERS_LABEL`.
+    * Tars and gzips the `/backup` directory.
+    * Encrypts the gzipped tar file using gpg and the `$ENCRYPTION_KEY` environment variable.
     * The final tarred, gzipped, encrypted file is called `$AWS_S3_KEY_PREFIX-$(date +%Y%m%d%H%M%S).tar.gz.gpg`.
     * Restarts the stopped containers.
     * Pushes the backup file to `s3://$AWS_S3_BUCKET/$AWS_S3_KEY_PREFIX-$(date +%Y%m%d%H%M%S).tar.gz.gpg`, using the `$AWS_S3_ACCESS_KEY_ID`, `$AWS_S3_ACCESS_KEY`, and `$AWS_DEFAULT_REGION`.
