@@ -13,7 +13,7 @@ services:
     ports:
       - "5432:5432"
     labels:
-      - bdv2s3.stop-during-backup=true
+      - bdv2s3.postgres-backup
     healthcheck:
       test: ["CMD", "pg_isready", "-h", "localhost", "-p", "5432", "-U", "test"]
       interval: 5s
@@ -40,6 +40,7 @@ services:
       - HEARTBEAT_URL=http://heartbeat-server?heartbeat
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - BACKUP_CRON_EXPRESSION=* * * * *
+      - STOP_CONTAINERS_LABEL=bdv2s3.postgres-backup
     healthcheck:
       test: ["CMD", "ls", "/backup/test_postgresql_data"]
       interval: 1s

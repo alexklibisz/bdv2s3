@@ -8,10 +8,10 @@ AWS_S3_KEY="$AWS_S3_KEY_PREFIX$(date +%Y%m%d%H%M%S).tar.gz.gpg"
 echo "Creating new backup with key [${AWS_S3_KEY}]"
 
 echo "Stopping any containers with label bdv2s3.stop-during-backup=true"
-CONTAINERS_TO_STOP=$(docker ps --format "{{.ID}}" --filter "label=bdv2s3.stop-during-backup=true")
+CONTAINERS_TO_STOP=$(docker ps --format "{{.ID}}" --filter "label=${STOP_CONTAINERS_LABEL}")
 for C in $CONTAINERS_TO_STOP
 do
-    echo "Stopping $C"
+    echo "Stopping container $C"
     docker stop $C
 done
 
