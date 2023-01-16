@@ -98,6 +98,8 @@ Let's say the backup was stored at `s3://my-volume-backup-bucket/my-volume-20221
 $ aws s3 cp s3://my-volume-backup-bucket/backup-20221217000000.tar.gz.gpg .
 # Decrypt the backup (this will prompt for the passphrase).
 $ gpg --batch --decrypt -o backup.tar.gz backup-20221217000000.tar.gz.gpg
+# Untar the backup.
+$ tar xzf backup.tar.gz
 # Shut down the docker-compose stack (if it's currently running).
 $ docker-compose down
 # Delete the volume (if it's still around locally).
@@ -105,7 +107,7 @@ $ docker volume rm my_volume
 # Re-create the volume.
 $ docker volume create my_volume
 # Run an rsync container with the backup directory and the volume mounted to restore the backup.
-$ docker run --rm -v ./backup/my_volume:/backup -v my_volume:/restore eeacms/rsync:2.4 rsync -az /backup/ /restore/
+$ docker run --rm -v $PWD/backup/my_volume:/backup -v my_volume:/restore eeacms/rsync:2.4 rsync -az /backup/ /restore/
 # Re-start the docker-compose stack.
 $ docker-compose up
 ```
