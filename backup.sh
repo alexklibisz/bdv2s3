@@ -18,8 +18,10 @@ done
 echo "Creating backup"
 tar cvf backup.tar --sort=name ./backup
 md5sum backup.tar
+du -hs backup.tar
 gzip -f -n backup.tar
 md5sum backup.tar.gz
+du -hs backup.tar.gz
 gpg --batch --symmetric --cipher-algo aes256 --passphrase $ENCRYPTION_KEY -o backup.tar.gz.gpg backup.tar.gz
 md5sum backup.tar.gz.gpg
 
