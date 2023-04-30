@@ -1,4 +1,4 @@
-FROM alpine:3.17.0
+FROM alpine:3.17.3
 RUN apk update
 RUN apk add --no-cache aws-cli curl docker gnupg tar
 COPY backup.sh /backup.sh
