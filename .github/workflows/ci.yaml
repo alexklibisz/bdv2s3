@@ -133,10 +133,10 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.actorb }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Image
-        run: docker build . -t ghcr.io/${{ github.repository_owner }}/bdv2s3:pr-${{ github.event.number }}
-      - name: Push Image
-        run: docker push ghcr.io/${{ github.repository_owner }}/bdv2s3:pr-${{ github.event.number }}
+        run: docker buildx build --platform linux/arm64 -t ghcr.io/${{ github.repository_owner }}/bdv2s3:pr-${{ github.event.number }} --output type=image,push=true  .
+      # - name: Push Image
+      #   run: docker push ghcr.io/${{ github.repository_owner }}/bdv2s3:pr-${{ github.event.number }}
 
