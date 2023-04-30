@@ -140,9 +140,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install buildx
+      - name: Setup buildx
         timeout-minutes: 2
-        run: docker buildx install
+        run: |
+          docker buildx install
+          docker buildx create --name mybuilder --driver docker-containerd --use
       - name: Build and push for amd64
         run: |
           docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ github.repository_owner }}/bdv2s3:pr-${{ github.event.number }} --output type=image,push=true  .
