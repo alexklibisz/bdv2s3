@@ -19,11 +19,6 @@ echo "Creating backup"
 tar cvf backup.tar --sort=name ./backup
 md5sum backup.tar
 du -hs backup.tar
-gzip -f -n backup.tar
-md5sum backup.tar.gz
-du -hs backup.tar.gz
-gpg --batch --symmetric --cipher-algo aes256 --passphrase $ENCRYPTION_KEY -o backup.tar.gz.gpg backup.tar.gz
-md5sum backup.tar.gz.gpg
 
 echo "Starting containers that were stopped"
 for C in $CONTAINERS_TO_STOP
@@ -31,6 +26,13 @@ do
     echo "Starting $C"
     docker start $C
 done
+
+echo "Zipping and encrypting backup"
+gzip -f -n backup.tar
+md5sum backup.tar.gz
+du -hs backup.tar.gz
+gpg --batch --symmetric --cipher-algo aes256 --passphrase $ENCRYPTION_KEY -o backup.tar.gz.gpg backup.tar.gz
+md5sum backup.tar.gz.gpg
 
 echo "Copying backup to s3://$AWS_S3_BUCKET/$AWS_S3_KEY"
 aws s3 cp backup.tar.gz.gpg s3://$AWS_S3_BUCKET/$AWS_S3_KEY
