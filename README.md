@@ -29,7 +29,7 @@ The environment variables should be specified as follows:
 
 * `$AWS_ACCESS_KEY_ID` is the Backblaze application key ID.
 * `$AWS_SECRET_ACCESS_KEY` is the Backblaze application key.
-* `$AWS_S3_ENDPOINT_URL` is the bucket endpoint, e.g., `s3.us-west-002.backblazeb2.com`
+* `$AWS_S3_ENDPOINT_URL` is the bucket endpoint, e.g., `https://s3.us-west-002.backblazeb2.com`
 
 The implementation is based solely on the official Backblaze [Quickstart Guide for AWS CLI and Backblaze B2 Cloud Storage](https://help.backblaze.com/hc/en-us/articles/360047779633-Quickstart-Guide-for-AWS-CLI-and-Backblaze-B2-Cloud-Storage).
 
@@ -98,8 +98,6 @@ services:
 
       # A heartbeat URL that is called after each successful backup, letting us monitor and alert on the backup.
       - HEARTBEAT_URL=https://heartbeat.uptimerobot.com/abcdefg
-
-
 ```
 
 ## Example restoring from backup

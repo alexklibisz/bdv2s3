@@ -33,6 +33,7 @@ jobs:
       AWS_S3_ENDPOINT_URL: ${{ secrets[matrix.AWS_S3_ENDPOINT_URL] }}
       AWS_S3_BUCKET: ${{ secrets[matrix.AWS_S3_BUCKET] }}
       AWS_S3_KEY_PREFIX: test/postgres/${{ github.run_number }}/
+      AWS_DEFAULT_REGION: us-east-1
       PGHOST: localhost
       PGPORT: 5432
       PGUSER: test
