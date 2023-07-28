@@ -93,9 +93,9 @@ jobs:
         timeout-minutes: 2
         working-directory: test/postgres
         run: |
-          while true
-          do
-            (docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200 && exit 0) || sleep 1
+          while [ $? -ne 0 ]; do
+            sleep 1
+            docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200
           done
       - name: Select data after backup
         timeout-minutes: 1
