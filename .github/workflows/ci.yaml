@@ -47,6 +47,8 @@ jobs:
       PGPASSWORD: test
       PGDATABASE: test
       ENCRYPTION_KEY: password${{ github.run_number }}
+      # Default cron is set to never run, so we can start containers without running a backup.
+      BACKUP_CRON_EXPRESSION: '0 0 30 2 *'
     steps:
       - name: Checkout
         timeout-minutes: 1
@@ -69,9 +71,6 @@ jobs:
       - name: Start containers
         timeout-minutes: 2
         working-directory: test/postgres
-        env:
-          # Default cron is set to never run, so we can start containers without running a backup.
-          BACKUP_CRON_EXPRESSION: '0 0 30 2 *'
         run: docker compose up --build --wait --quiet-pull
       - name: Insert data
         timeout-minutes: 1
