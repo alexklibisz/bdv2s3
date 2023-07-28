@@ -16,7 +16,7 @@ I use this to backup docker-compose volumes in some self-hosted apps.
     * Encrypts the gzipped tar file using gpg and the `$ENCRYPTION_KEY` environment variable.
     * The final tarred, gzipped, encrypted file is called `$AWS_S3_KEY_PREFIX-$(date +%Y%m%d%H%M%S).tar.gz.gpg`.
     * Restarts the stopped containers.
-    * Pushes the backup file to `s3://$AWS_S3_BUCKET/$AWS_S3_KEY_PREFIX-$(date +%Y%m%d%H%M%S).tar.gz.gpg`, using the `$AWS_S3_ACCESS_KEY_ID`, `$AWS_S3_ACCESS_KEY`, and `$AWS_DEFAULT_REGION`.
+    * Pushes the backup file to `s3://$AWS_S3_BUCKET/$AWS_S3_KEY_PREFIX-$(date +%Y%m%d%H%M%S).tar.gz.gpg`, using the `$AWS_S3_ACCESS_KEY_ID`, `$AWS_S3_ACCESS_KEY`, `$AWS_DEFAULT_REGION`, and `$AWS_S3_ENDPOINT_URL`.
     * curls the `$HEARTBEAT_URL` to indicate a successful backup.
 
 ## Example backup container
@@ -78,8 +78,9 @@ services:
       # Access key of the IAM user with PutObject permissions for this bucket.
       - AWS_SECRET_ACCESS_KEY=***
 
-      # Region where the bucket is located.
-      - AWS_DEFAULT_REGION=us-east-1
+      # URL passed to the AWS S3 CLI via aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL
+      # This also lets us use Backblaze.
+      - AWS_S3_ENDPOINT_URL=https://s3.us-east-1.amazonaws.com
 
       # A heartbeat URL that is called after each successful backup, letting us monitor and alert on the backup.
       - HEARTBEAT_URL=https://heartbeat.uptimerobot.com/abcdefg
