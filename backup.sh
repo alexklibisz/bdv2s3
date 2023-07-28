@@ -35,7 +35,7 @@ gpg --batch --symmetric --cipher-algo aes256 --passphrase $ENCRYPTION_KEY -o bac
 md5sum backup.tar.gz.gpg
 
 echo "Copying backup to s3://$AWS_S3_BUCKET/$AWS_S3_KEY"
-aws s3 cp backup.tar.gz.gpg s3://$AWS_S3_BUCKET/$AWS_S3_KEY
+aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL cp backup.tar.gz.gpg s3://$AWS_S3_BUCKET/$AWS_S3_KEY
 rm backup.tar.gz backup.tar.gz.gpg
 
 echo "Calling heartbeat URL"
