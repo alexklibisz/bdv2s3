@@ -76,9 +76,9 @@ jobs:
         timeout-minutes: 1
         working-directory: test/postgres
         run: ./select-data.sh > before-backup.txt
-      - name: Wait for the backup to run
+      - name: Run the backup
         timeout-minutes: 2
-        run: sleep 60
+        run: docker compose exec backup_volumes /backup.sh
       - name: Select data after backup
         timeout-minutes: 1
         working-directory: test/postgres
