@@ -72,28 +72,20 @@ jobs:
       - name: Select data before backup
         timeout-minutes: 1
         run: ./select-data.sh > before-backup.txt
-      - name: Restart with cron
+      - name: Restart with cron enabled
         timeout-minutes: 1
         env:
           BACKUP_CRON_EXPRESSION: '* * * * *'
         run: |
           docker compose down
           docker compose up --wait
-      - name: Wait for backup to run
+      - name: Check for heartbeat logs
         timeout-minutes: 2
         run: |
-          sleep 80
-      - name: Check heartbeat server
-        working-directory: test/postgres
-        run: |
-          docker-compose logs heartbeat-server | grep '/?heartbeat' | grep 200
-      - name: List backups
-        run:
-          aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL ls --recursive s3://$AWS_S3_BUCKET
-      - name: Copy backup from S3
-        run: |
-          aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
-          ls -la
+          while true
+          do
+            docker-compose logs heartbeat-server | grep '/?heartbeat' | grep 200 && break || sleep 1
+          done
       - name: Select data after backup
         timeout-minutes: 1
         run: |
@@ -105,6 +97,13 @@ jobs:
         run: |
           md5sum before-backup.txt after-backup.txt
           cmp before-backup.txt after-backup.txt
+      - name: List backups
+        run:
+          aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL ls --recursive s3://$AWS_S3_BUCKET
+      - name: Copy backup from S3
+        run: |
+          aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
+          ls -la
       - name: Decrypt backup
         run: |
           export BACKUP_FNAME=$(find . -name '*.tar.gz.gpg' | grep $AWS_S3_KEY_PREFIX | tail -n1)
