@@ -71,7 +71,7 @@ jobs:
         working-directory: test/postgres
         env:
           # Default cron is set to never run, so we can start containers without running a backup.
-          BACKUP_CRON_EXPRESSION: 0 0 30 2 *
+          BACKUP_CRON_EXPRESSION: '0 0 30 2 *'
         run: docker compose up --build --wait --quiet-pull
       - name: Insert data
         timeout-minutes: 1
@@ -85,7 +85,7 @@ jobs:
         timeout-minutes: 1
         working-directory: test/postgres
         env:
-          BACKUP_CRON_EXPRESSION: * * * * *
+          BACKUP_CRON_EXPRESSION: '* * * * *'
         run: |
           docker compose down
           docker compose up --wait
