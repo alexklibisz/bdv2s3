@@ -88,9 +88,10 @@ jobs:
             sleep 1
             docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200
           done
+          docker compose logs backup
       - name: List backups
         run:
-          aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL ls s3://$AWS_S3_BUCKET/$AWS_S3_KEY_PREFIX
+          aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL ls --recursive s3://$AWS_S3_BUCKET
       - name: Copy backup from S3
         run: |
           aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
