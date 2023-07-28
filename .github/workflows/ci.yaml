@@ -89,11 +89,12 @@ jobs:
           docker compose down
           docker compose up --wait
       # Poll the heartbeat container logs to determine when the backup has run.
-      - name: Wait for backup to run
+      - name: Wait for heartbeat
         timeout-minutes: 2
         working-directory: test/postgres
         run: |
-          while [ $? -ne 0 ]; do
+          while [ $? -ne 0 ]
+          do
             sleep 1
             docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200
           done
@@ -105,10 +106,6 @@ jobs:
           pg_isready -h localhost -p 5432
           ./select-data.sh > after-backup.txt
           cmp before-backup.txt after-backup.txt
-      - name: Check heartbeat server
-        working-directory: test/postgres
-        run: |
-          docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200
       - name: Stop containers
         timeout-minutes: 1
         working-directory: test/postgres
