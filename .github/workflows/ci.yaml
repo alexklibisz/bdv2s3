@@ -10,16 +10,8 @@ concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  show-github-context:
-    name: Show Github Context
-    timeout-minutes: 1
-    runs-on: ubuntu-22.04
-    env:
-      GITHUB_CONTEXT: ${{ toJson(github) }}
-    steps:
-      - run: echo $GITHUB_CONTEXT > /dev/null
   test-postgres:
-    name: End-to-end Postgres Test (${{ matrix.PLATFORM }})
+    name: E2E Postgres Test (${{ matrix.PLATFORM }})
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -106,10 +98,11 @@ jobs:
           pg_isready -h localhost -p 5432
           ./select-data.sh > after-backup.txt
           cmp before-backup.txt after-backup.txt
-      - name: Stop containers
-        timeout-minutes: 1
+      - name: Compare before backup and after backup
         working-directory: test/postgres
-        run: docker compose down
+        run: |
+          md5sum before-backup.txt after-backup.txt
+          cmp before-backup.txt after-backup.txt
       - name: Copy backup from S3
         working-directory: test/postgres
         run: |
@@ -128,20 +121,19 @@ jobs:
         timeout-minutes: 1
         working-directory: test/postgres
         run: |
+          docker compose down
           docker volume rm test_postgresql_data
           docker volume create test_postgresql_data
           docker run --rm -v $PWD/backup/test_postgresql_data:/backup -v test_postgresql_data:/restore eeacms/rsync:2.4 rsync -az /backup/ /restore/
       - name: Restart containers
         timeout-minutes: 1
         working-directory: test/postgres
-        run: docker compose up -d --wait
-      - name: Validate backup
+        run: docker compose up --wait
+      - name: Compare before backup and after restore
         working-directory: test/postgres
         run: |
           ./select-data.sh > after-restore.txt
-          md5sum before-backup.txt
-          md5sum after-backup.txt
-          md5sum after-restore.txt
+          md5sum before-backup.txt after-restore.txt
           cmp before-backup.txt after-restore.txt
       - name: Stop containers
         if: ${{ always() }}
