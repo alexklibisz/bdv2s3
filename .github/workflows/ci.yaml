@@ -90,6 +90,11 @@ jobs:
             sleep 1
             docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200
           done
+      - name: Copy backup from S3
+        working-directory: test/postgres
+        run: |
+          aws s3 cp --endpoint-url=$AWS_S3_ENDPOINT_URL s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
+          ls -la
       - name: Select data after backup
         timeout-minutes: 1
         working-directory: test/postgres
@@ -103,10 +108,6 @@ jobs:
         run: |
           md5sum before-backup.txt after-backup.txt
           cmp before-backup.txt after-backup.txt
-      - name: Copy backup from S3
-        working-directory: test/postgres
-        run: |
-          aws s3 cp --endpoint-url=$AWS_S3_ENDPOINT_URL s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
       - name: Decrypt backup
         working-directory: test/postgres
         run: |
