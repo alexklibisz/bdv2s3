@@ -91,6 +91,7 @@ jobs:
       # Poll the heartbeat container logs to determine when the backup has run.
       - name: Wait for backup to run
         timeout-minutes: 2
+        working-directory: test/postgres
         run: |
           while true
           do
