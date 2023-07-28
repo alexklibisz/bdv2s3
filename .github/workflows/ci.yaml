@@ -79,7 +79,7 @@ jobs:
       - name: Run the backup
         timeout-minutes: 2
         working-directory: test/postgres
-        run: docker compose exec backup_volumes /backup.sh
+        run: docker compose exec backup /backup.sh
       - name: Select data after backup
         timeout-minutes: 1
         working-directory: test/postgres
