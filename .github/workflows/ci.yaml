@@ -99,7 +99,7 @@ jobs:
       - name: Copy backup from S3
         working-directory: test/postgres
         run: |
-          aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
+          aws s3 cp --endpoint-url=$AWS_S3_ENDPOINT_URL s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
       - name: Decrypt backup
         working-directory: test/postgres
         run: |
