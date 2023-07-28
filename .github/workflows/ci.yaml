@@ -79,11 +79,14 @@ jobs:
         run: |
           docker compose down
           docker compose up --wait
-      # Poll the heartbeat container logs to determine when the backup has run.
-      - name: Wait for heartbeat
+      - name: Wait for backup to run
         timeout-minutes: 2
         run: |
-          sleep 60
+          sleep 80
+      - name: Check heartbeat server
+        working-directory: test/postgres
+        run: |
+          docker-compose logs heartbeat-server | grep '/?heartbeat' | grep 200
       - name: List backups
         run:
           aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL ls --recursive s3://$AWS_S3_BUCKET
