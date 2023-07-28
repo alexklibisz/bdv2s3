@@ -14,8 +14,8 @@ if [[ -z "$AWS_SECRET_ACCESS_KEY" ]]; then
     echo "Must provide AWS_SECRET_ACCESS_KEY in environment" 1>&2
     ERROR=1
 fi
-if [[ -z "$AWS_DEFAULT_REGION" ]]; then
-    echo "Must provide AWS_DEFAULT_REGION in environment" 1>&2
+if [[ -z "$AWS_S3_ENDPOINT_URL" ]]; then
+    echo "Must provide AWS_S3_ENDPOINT_URL in environment" 1>&2
     ERROR=1
 fi
 if [[ -z "$AWS_S3_BUCKET" ]]; then

@@ -10,22 +10,28 @@ concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  show-github-context:
-    name: Show Github Context
-    timeout-minutes: 1
-    runs-on: ubuntu-22.04
-    env:
-      GITHUB_CONTEXT: ${{ toJson(github) }}
-    steps:
-      - run: echo $GITHUB_CONTEXT > /dev/null
   test-postgres:
-    name: End-to-end Postgres test
+    name: E2E Postgres Test (${{ matrix.PLATFORM }})
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - PLATFORM: AWS S3
+            AWS_ACCESS_KEY_ID: AWS_ACCESS_KEY_ID
+            AWS_SECRET_ACCESS_KEY: AWS_SECRET_ACCESS_KEY
+            AWS_S3_ENDPOINT_URL: AWS_S3_ENDPOINT_URL
+            AWS_S3_BUCKET: AWS_S3_BUCKET
+          - PLATFORM: Backblaze B2
+            AWS_ACCESS_KEY_ID: BACKBLAZE_AWS_ACCESS_KEY_ID
+            AWS_SECRET_ACCESS_KEY: BACKBLAZE_AWS_SECRET_ACCESS_KEY
+            AWS_S3_ENDPOINT_URL: BACKBLAZE_AWS_S3_ENDPOINT_URL
+            AWS_S3_BUCKET: BACKBLAZE_AWS_S3_BUCKET
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-      AWS_DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: ${{ secrets[matrix.AWS_ACCESS_KEY_ID] }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets[matrix.AWS_SECRET_ACCESS_KEY] }}
+      AWS_S3_ENDPOINT_URL: ${{ secrets[matrix.AWS_S3_ENDPOINT_URL] }}
+      AWS_S3_BUCKET: ${{ secrets[matrix.AWS_S3_BUCKET] }}
       AWS_S3_KEY_PREFIX: test/postgres/${{ github.run_number }}/
       PGHOST: localhost
       PGPORT: 5432
@@ -33,6 +39,11 @@ jobs:
       PGPASSWORD: test
       PGDATABASE: test
       ENCRYPTION_KEY: password${{ github.run_number }}
+      # Default cron is set to never run, so we can start containers without running a backup.
+      BACKUP_CRON_EXPRESSION: '0 0 30 2 *'
+    defaults:
+      run:
+        working-directory: test/postgres
     steps:
       - name: Checkout
         timeout-minutes: 1
@@ -50,79 +61,83 @@ jobs:
           psql --version
       - name: Install AWS CLI
         timeout-minutes: 1
-        working-directory: ${{ env.RUNNER_TEMP }}
         run: aws --version
       - name: Start containers
-        timeout-minutes: 1
-        working-directory: test/postgres
-        run: docker-compose up --build --wait
+        timeout-minutes: 2
+        run: docker compose up --build --wait --quiet-pull
       - name: Insert data
         timeout-minutes: 1
-        working-directory: test/postgres
         run: ./insert-data.sh
       - name: Select data before backup
         timeout-minutes: 1
-        working-directory: test/postgres
         run: ./select-data.sh > before-backup.txt
-      - name: Wait for the backup to run
+      - name: Restart with cron enabled
+        timeout-minutes: 1
+        env:
+          BACKUP_CRON_EXPRESSION: '* * * * *'
+        run: |
+          docker compose down
+          docker compose up --wait
+      - name: Check for heartbeat logs
         timeout-minutes: 2
-        run: sleep 60
+        run: |
+          while true
+          do
+            docker-compose logs heartbeat-server | grep '/?heartbeat' | grep 200 && break || sleep 1
+          done
       - name: Select data after backup
         timeout-minutes: 1
-        working-directory: test/postgres
         run: |
           pg_isready -h localhost -p 5432 || sleep 10
           pg_isready -h localhost -p 5432
           ./select-data.sh > after-backup.txt
           cmp before-backup.txt after-backup.txt
-      - name: Check heartbeat server
-        working-directory: test/postgres
+      - name: Compare before backup and after backup
         run: |
-          docker-compose logs heartbeat-server | grep '/?heartbeat' | grep 200
-      - name: Stop containers
-        timeout-minutes: 1
-        working-directory: test/postgres
-        run: docker-compose down
+          md5sum before-backup.txt after-backup.txt
+          cmp before-backup.txt after-backup.txt
+      - name: List backups
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+        run:
+          aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL ls --recursive s3://$AWS_S3_BUCKET
       - name: Copy backup from S3
-        working-directory: test/postgres
+        env:
+          AWS_DEFAULT_REGION: us-east-1
         run: |
-          aws s3 cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
+          aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL cp s3://$AWS_S3_BUCKET . --recursive --exclude "*" --include "$AWS_S3_KEY_PREFIX*"
+          ls -la
       - name: Decrypt backup
-        working-directory: test/postgres
         run: |
           export BACKUP_FNAME=$(find . -name '*.tar.gz.gpg' | grep $AWS_S3_KEY_PREFIX | tail -n1)
           echo $BACKUP_FNAME
           gpg --batch --decrypt --passphrase $ENCRYPTION_KEY -o backup.tar.gz $BACKUP_FNAME
       - name: Extract backup
-        working-directory: test/postgres
         run: |
           tar xzf backup.tar.gz
       - name: Restore backup
         timeout-minutes: 1
-        working-directory: test/postgres
         run: |
+          docker compose down
           docker volume rm test_postgresql_data
           docker volume create test_postgresql_data
           docker run --rm -v $PWD/backup/test_postgresql_data:/backup -v test_postgresql_data:/restore eeacms/rsync:2.4 rsync -az /backup/ /restore/
       - name: Restart containers
         timeout-minutes: 1
-        working-directory: test/postgres
-        run: docker-compose up -d --wait
-      - name: Validate backup
-        working-directory: test/postgres
+        run: docker compose up --wait
+      - name: Compare before backup and after restore
         run: |
+          pg_isready -h localhost -p 5432 || sleep 10
+          pg_isready -h localhost -p 5432
           ./select-data.sh > after-restore.txt
-          md5sum before-backup.txt
-          md5sum after-backup.txt
-          md5sum after-restore.txt
+          md5sum before-backup.txt after-restore.txt
           cmp before-backup.txt after-restore.txt
       - name: Stop containers
         if: ${{ always() }}
         timeout-minutes: 1
-        working-directory: test/postgres
         run: |
-          docker-compose logs
-          docker-compose down --volumes
+          docker compose logs
+          docker compose down --volumes
   test-publish:
     name: Test publishing to Github container registry
     runs-on: ubuntu-22.04
