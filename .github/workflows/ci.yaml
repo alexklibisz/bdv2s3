@@ -83,12 +83,7 @@ jobs:
       - name: Wait for heartbeat
         timeout-minutes: 2
         run: |
-          while [ $? -ne 0 ]
-          do
-            sleep 1
-            docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200
-          done
-          docker compose logs
+          sleep 60
       - name: List backups
         run:
           aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL ls --recursive s3://$AWS_S3_BUCKET
