@@ -95,7 +95,7 @@ jobs:
         run: |
           while true
           do
-            (docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200) || sleep 1
+            (docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200 && exit 0) || sleep 1
           done
       - name: Select data after backup
         timeout-minutes: 1
