@@ -93,7 +93,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=***
 
       # URL passed to the AWS S3 CLI via aws s3 --endpoint-url=$AWS_S3_ENDPOINT_URL
-      # This also lets us use Backblaze.
+      # This also lets us use Backblaze, e.g., https://s3.us-west-002.backblazeb2.com
       - AWS_S3_ENDPOINT_URL=https://s3.us-east-1.amazonaws.com
 
       # A heartbeat URL that is called after each successful backup, letting us monitor and alert on the backup.
