@@ -54,9 +54,9 @@ jobs:
         working-directory: ${{ env.RUNNER_TEMP }}
         run: aws --version
       - name: Start containers
-        timeout-minutes: 1
+        timeout-minutes: 2
         working-directory: test/postgres
-        run: docker-compose up --build --wait
+        run: docker-compose up --build --wait --quiet-pull
       - name: Insert data
         timeout-minutes: 1
         working-directory: test/postgres
