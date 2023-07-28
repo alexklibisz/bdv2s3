@@ -69,7 +69,10 @@ jobs:
       - name: Start containers
         timeout-minutes: 2
         working-directory: test/postgres
-        run: docker-compose up --build --wait --quiet-pull
+        env:
+          # Default cron is set to never run, so we can start containers without running a backup.
+          BACKUP_CRON_EXPRESSION: 0 0 30 2 *
+        run: docker compose up --build --wait --quiet-pull
       - name: Insert data
         timeout-minutes: 1
         working-directory: test/postgres
@@ -78,10 +81,22 @@ jobs:
         timeout-minutes: 1
         working-directory: test/postgres
         run: ./select-data.sh > before-backup.txt
-      - name: Run the backup
-        timeout-minutes: 2
+      - name: Restart with cron
+        timeout-minutes: 1
         working-directory: test/postgres
-        run: docker compose exec backup /backup.sh
+        env:
+          BACKUP_CRON_EXPRESSION: * * * * *
+        run: |
+          docker compose down
+          docker compose up --wait
+      # Poll the heartbeat container logs to determine when the backup has run.
+      - name: Wait for backup to run
+        timeout-minutes: 2
+        run: |
+          while true
+          do
+            (docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200) || sleep 1
+          done
       - name: Select data after backup
         timeout-minutes: 1
         working-directory: test/postgres
@@ -93,11 +108,11 @@ jobs:
       - name: Check heartbeat server
         working-directory: test/postgres
         run: |
-          docker-compose logs heartbeat-server | grep '/?heartbeat' | grep 200
+          docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200
       - name: Stop containers
         timeout-minutes: 1
         working-directory: test/postgres
-        run: docker-compose down
+        run: docker compose down
       - name: Copy backup from S3
         working-directory: test/postgres
         run: |
@@ -122,7 +137,7 @@ jobs:
       - name: Restart containers
         timeout-minutes: 1
         working-directory: test/postgres
-        run: docker-compose up -d --wait
+        run: docker compose up -d --wait
       - name: Validate backup
         working-directory: test/postgres
         run: |
@@ -136,8 +151,8 @@ jobs:
         timeout-minutes: 1
         working-directory: test/postgres
         run: |
-          docker-compose logs
-          docker-compose down --volumes
+          docker compose logs
+          docker compose down --volumes
   test-publish:
     name: Test publishing to Github container registry
     runs-on: ubuntu-22.04

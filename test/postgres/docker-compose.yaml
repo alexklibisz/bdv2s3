@@ -40,7 +40,7 @@ services:
       - AWS_S3_ENDPOINT_URL=${AWS_S3_ENDPOINT_URL}
       - HEARTBEAT_URL=http://heartbeat-server?heartbeat
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - BACKUP_CRON_EXPRESSION=0 0 30 2 *
+      - BACKUP_CRON_EXPRESSION=${BACKUP_CRON_EXPRESSION}
       - STOP_CONTAINERS_LABEL=bdv2s3.postgres-backup
     healthcheck:
       test: ["CMD", "ls", "/backup/test_postgresql_data"]
@@ -48,6 +48,9 @@ services:
       timeout: 1s
       retries: 5
       start_period: 1s
+    depends_on:
+      - postgres:
+          condition: service_healthy
 volumes:
   test_postgresql_data:
     name: test_postgresql_data
