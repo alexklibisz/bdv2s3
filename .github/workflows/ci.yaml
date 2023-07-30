@@ -157,7 +157,7 @@ jobs:
       - name: Set Docker Tag
         run: echo "TAG=pr-$(git show -s --format=%ct)" >> $GITHUB_ENV
       - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
