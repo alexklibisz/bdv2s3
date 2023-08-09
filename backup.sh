@@ -15,6 +15,9 @@ do
     docker stop $C
 done
 
+echo "Cleaning up old backups"
+rm -rf backup.tar backup.tar.gz backup.tar.gz.gpg
+
 echo "Creating backup"
 tar cvf backup.tar --sort=name ./backup
 md5sum backup.tar
