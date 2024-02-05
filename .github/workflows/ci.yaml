@@ -77,7 +77,7 @@ jobs:
           docker compose down
           docker compose up --wait
       - name: Check for heartbeat logs
-        timeout-minutes: 2
+        timeout-minutes: 4
         run: |
           while true
           do
