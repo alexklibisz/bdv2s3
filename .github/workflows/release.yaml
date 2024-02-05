@@ -8,14 +8,14 @@ jobs:
   show-github-context:
     name: Show Github Context
     timeout-minutes: 1
-    runs-on: ubuntu-22.04
+    runs-on: bdv2s3-cx41
     env:
       GITHUB_CONTEXT: ${{ toJson(github) }}
     steps:
       - run: echo $GITHUB_CONTEXT > /dev/null
   release:
     name: Release
-    runs-on: ubuntu-22.04
+    runs-on: bdv2s3-cx41
     env:
       GITHUB_CONTEXT: ${{ toJson(github) }}
     steps:

@@ -12,7 +12,7 @@ concurrency:
 jobs:
   test-postgres:
     name: E2E Postgres Test (${{ matrix.PLATFORM }})
-    runs-on: ubuntu-22.04
+    runs-on: bdv2s3-cx41
     strategy:
       fail-fast: false
       matrix:
@@ -50,10 +50,6 @@ jobs:
         uses: actions/checkout@v3
       - name: Install gpg
         run: gpg --version
-      - name: Install docker-compose
-        uses: KengoTODA/actions-setup-docker-compose@main
-        with:
-          version: '2.14.1'
       - name: Install postgres client
         timeout-minutes: 1
         run: |
@@ -61,7 +57,9 @@ jobs:
           psql --version
       - name: Install AWS CLI
         timeout-minutes: 1
-        run: aws --version
+        run: |
+          sudo apt-get install -y awscli
+          aws --version
       - name: Start containers
         timeout-minutes: 2
         run: docker compose up --build --wait --quiet-pull
@@ -79,11 +77,11 @@ jobs:
           docker compose down
           docker compose up --wait
       - name: Check for heartbeat logs
-        timeout-minutes: 2
+        timeout-minutes: 4
         run: |
           while true
           do
-            docker-compose logs heartbeat-server | grep '/?heartbeat' | grep 200 && break || sleep 1
+            docker compose logs heartbeat-server | grep '/?heartbeat' | grep 200 && break || sleep 1
           done
       - name: Select data after backup
         timeout-minutes: 1
@@ -140,7 +138,7 @@ jobs:
           docker compose down --volumes
   test-publish:
     name: Test publishing to Github container registry
-    runs-on: ubuntu-22.04
+    runs-on: bdv2s3-cx41
     if: ${{ github.event_name == 'pull_request' }}
     steps:
       - uses: actions/checkout@v3
