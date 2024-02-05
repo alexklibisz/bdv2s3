@@ -12,7 +12,7 @@ concurrency:
 jobs:
   test-postgres:
     name: E2E Postgres Test (${{ matrix.PLATFORM }})
-    runs-on: ubuntu-22.04
+    runs-on: bdv2s3-cx41
     strategy:
       fail-fast: false
       matrix:
@@ -140,7 +140,7 @@ jobs:
           docker compose down --volumes
   test-publish:
     name: Test publishing to Github container registry
-    runs-on: ubuntu-22.04
+    runs-on: bdv2s3-cx41
     if: ${{ github.event_name == 'pull_request' }}
     steps:
       - uses: actions/checkout@v3
