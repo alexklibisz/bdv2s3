@@ -61,7 +61,9 @@ jobs:
           psql --version
       - name: Install AWS CLI
         timeout-minutes: 1
-        run: aws --version
+        run: |
+          sudo apt-get install -y awscli
+          aws --version
       - name: Start containers
         timeout-minutes: 2
         run: docker compose up --build --wait --quiet-pull
